@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rapid Response Scan — di 14 april 2026</title>
+<style>
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px;
+    color: #222;
+    line-height: 1.5;
+    background: #fafafa;
+  }
+  header.scan-header {
+    border-bottom: 3px solid #E65100;
+    padding-bottom: 10px;
+    margin-bottom: 16px;
+  }
+  header.scan-header h1 {
+    color: #E65100;
+    margin: 0;
+    font-size: 24px;
+  }
+  header.scan-header .meta {
+    color: #888;
+    font-size: 13px;
+  }
+  .backend-status {
+    margin: 8px 0;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    display: inline-block;
+  }
+  .backend-status.ok { background: #E8F5E9; color: #2E7D32; }
+  .backend-status.warn { background: #FFF3E0; color: #E65100; }
+  .backend-status.err { background: #FFEBEE; color: #C62828; }
+  section.scan-section {
+    background: #fff;
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin-top: 18px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    border-left: 4px solid var(--section-color, #E65100);
+  }
+  section.scan-section h2 {
+    color: var(--section-color, #E65100);
+    font-size: 18px;
+    margin: 0 0 10px 0;
+  }
+  .section-intro {
+    font-size: 12px;
+    color: #666;
+    margin: 0 0 12px 0;
+    font-style: italic;
+  }
+  .scan-item {
+    padding: 12px 0;
+    border-top: 1px solid #f0f0f0;
+  }
+  .scan-item:first-of-type { border-top: none; }
+  .scan-item-header {
+    font-size: 15px;
+    margin-bottom: 4px;
+  }
+  .scan-item-meta { color: #888; font-size: 13px; }
+  .scan-item-body {
+    font-size: 13px;
+    color: #333;
+    margin-bottom: 10px;
+  }
+  .scan-item-body em { color: #444; font-style: italic; }
+  .scan-item-body a { color: #1565C0; font-size: 12px; }
+  .fb-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .fb-btn {
+    background: #fff;
+    border: 2px solid var(--btn-color, #666);
+    color: var(--btn-color, #666);
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.1s;
+  }
+  .fb-btn:hover {
+    background: var(--btn-color);
+    color: #fff;
+  }
+  .fb-btn.selected {
+    background: var(--btn-color);
+    color: #fff;
+  }
+  .fb-btn.updating { opacity: 0.5; }
+  .fb-count {
+    margin-left: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    opacity: 0.8;
+  }
+  .fb-comment-wrap {
+    margin-top: 8px;
+    display: flex;
+    gap: 6px;
+    align-items: flex-start;
+  }
+  .fb-comment {
+    flex: 1;
+    font-family: inherit;
+    font-size: 12px;
+    padding: 4px 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    resize: vertical;
+    min-height: 32px;
+  }
+  .fb-comment-save {
+    background: #555;
+    color: #fff;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .fb-comment-save:hover { background: #333; }
+  .fb-comment-status {
+    font-size: 11px;
+    color: #2E7D32;
+    align-self: center;
+  }
+  .fb-comments-list {
+    margin-top: 8px;
+    font-size: 12px;
+  }
+  .fb-comments-list .fb-c {
+    background: #f5f5f5;
+    border-left: 3px solid #888;
+    padding: 4px 8px;
+    margin-top: 4px;
+    border-radius: 3px;
+    color: #444;
+  }
+  .fb-comments-list .fb-c .fb-c-label {
+    font-weight: 600;
+    color: #555;
+    font-size: 11px;
+    margin-right: 6px;
+  }
+  .afraders-list { font-size: 13px; color: #555; padding-left: 20px; }
+  .afraders-list li { margin-bottom: 4px; }
+  .signalen .signal-group { margin-bottom: 6px; font-size: 12px; }
+  .signal-chip {
+    display: inline-block;
+    background: #F5F5F5;
+    color: #1565C0;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+    margin: 2px 4px 2px 0;
+  }
+  footer {
+    margin-top: 32px;
+    padding-top: 12px;
+    border-top: 1px solid #ddd;
+    color: #999;
+    font-size: 11px;
+  }
+</style>
+</head>
+<body>
+<header class="scan-header">
+  <h1>Rapid Response Scan — di 14 april 2026</h1>
+  <div class="meta">44 feeds, 727 artikelen, 50 relevant | 23 NGO&#x27;s gescand | 0 persistente signalen (1 dag data beschikbaar)</div>
+  <div id="backend-status" class="backend-status warn">Verbinden met feedback-backend…</div>
+</header>
+
+
+    <section class="scan-section" style="--section-color:#E65100;">
+        <h2>Top 3 aanbevelingen</h2>
+        
+        
+    <div class="scan-item" id="item-top3-1">
+        <div class="scan-item-header">
+            <strong>Ombudsman: kabinet laat allerzwaksten stikken bij bijstandsbesparingen</strong>
+            <span class="scan-item-meta">· nos.nl</span>
+            <span style="background-color:#2E4057;color:#fff;padding:2px 6px;border-radius:3px;font-size:11px;font-weight:600;">82/100</span>
+             <span style="background-color:#FFF3E0;color:#E65100;padding:1px 5px;border-radius:3px;font-size:11px;">RSS-only - geen social media tractie. DGZ kan het publieke gesprek starten.</span>
+        </div>
+        <div class="scan-item-body">
+            <em>Wat:</em> Nationale Ombudsman Reinier van Zutphen stuurde een vernietigende brief aan minister Aartsen: de bijstandsbesparingen treffen de allerarmsten en zijn ook op lange termijn duurder voor de staatskas. Economen en onderzoekers steunen zijn kritiek.<br>
+            <em>Eis:</em> Eis dat minister Aartsen de bezuinigingen op de bijstand intrekt voor de begrotingsbehandeling.<br>
+            <em>Relevantie DGZ:</em> De Ombudsman is een gezaghebbende stem die het kabinet direct aanvalt. Dat is een zeldzaam moment met hoog mediamomentum. Dit is een klassiek elite-vs-burger verhaal: het kabinet bezuinigt op de allerarmsten terwijl economen waarschuwen dat dit de staatskas op termijn meer kost.<br>
+            <a href="https://nos.nl/l/2609970" target="_blank" rel="noopener">Lees meer</a>
+        </div>
+        <div class="fb-buttons" data-onderwerp="Ombudsman: kabinet laat allerzwaksten stikken bij bijstandsbesparingen" data-item="top3-1"><button class="fb-btn" data-label="top" data-item="top3-1" style="--btn-color:#2E7D32;">Top — oppakken <span class="fb-count" data-label="top" data-item="top3-1">0</span></button><button class="fb-btn" data-label="niet-relevant" data-item="top3-1" style="--btn-color:#C62828;">Niet relevant <span class="fb-count" data-label="niet-relevant" data-item="top3-1">0</span></button><button class="fb-btn" data-label="al-afgedekt" data-item="top3-1" style="--btn-color:#6A1B9A;">Al afgedekt door bondgenoot <span class="fb-count" data-label="al-afgedekt" data-item="top3-1">0</span></button><button class="fb-btn" data-label="later" data-item="top3-1" style="--btn-color:#1565C0;">Interessant, later <span class="fb-count" data-label="later" data-item="top3-1">0</span></button><button class="fb-btn" data-label="geen-prio" data-item="top3-1" style="--btn-color:#E65100;">Interessant, geen prio nu <span class="fb-count" data-label="geen-prio" data-item="top3-1">0</span></button></div><div class="fb-comment-wrap"><textarea class="fb-comment" data-item="top3-1" placeholder="Optionele toelichting (bv. waarom niet, of welke bondgenoot)..." rows="2"></textarea><button class="fb-comment-save" data-item="top3-1">Bewaar opmerking</button><span class="fb-comment-status" data-item="top3-1"></span></div><div class="fb-comments-list" data-item="top3-1"></div>
+    </div>
+    
+    <div class="scan-item" id="item-top3-2">
+        <div class="scan-item-header">
+            <strong>Rijksambtenaren staken om nullijn - Tweede Kamer lag vandaag plat</strong>
+            <span class="scan-item-meta">· nos.nl</span>
+            <span style="background-color:#2E4057;color:#fff;padding:2px 6px;border-radius:3px;font-size:11px;font-weight:600;">80/100</span>
+             <span style="background-color:#FFF3E0;color:#E65100;padding:1px 5px;border-radius:3px;font-size:11px;">RSS-only - geen social media tractie. DGZ kan het narratief framen.</span>
+        </div>
+        <div class="scan-item-body">
+            <em>Wat:</em> Rijksambtenaren legden vandaag het werk neer omdat hun salarissen bevroren zijn. De nullijn werd door kabinet-Jetten niet teruggedraaid. De Tweede Kamer moest alle debatten afgelasten. De Raad van State noemde de ambtenarenbezuiniging &#x27;onzeker&#x27;.<br>
+            <em>Eis:</em> Eis dat minister Uitermark de nullijn voor rijksambtenaren intrekt en de looneis van de vakbonden honoreert.<br>
+            <em>Relevantie DGZ:</em> Vandaag werd zichtbaar wat bezuinigingen op publieke diensten betekenen: cipiers, belastingdienstmedewerkers, DUO-personeel - allemaal plat. Ravijnjaar-beleid in de praktijk. Elite (kabinetsbezuiniging) vs. burger (publieke diensten die wegvallen).<br>
+            <a href="https://nos.nl/l/2610375" target="_blank" rel="noopener">Lees meer</a>
+        </div>
+        <div class="fb-buttons" data-onderwerp="Rijksambtenaren staken om nullijn - Tweede Kamer lag vandaag plat" data-item="top3-2"><button class="fb-btn" data-label="top" data-item="top3-2" style="--btn-color:#2E7D32;">Top — oppakken <span class="fb-count" data-label="top" data-item="top3-2">0</span></button><button class="fb-btn" data-label="niet-relevant" data-item="top3-2" style="--btn-color:#C62828;">Niet relevant <span class="fb-count" data-label="niet-relevant" data-item="top3-2">0</span></button><button class="fb-btn" data-label="al-afgedekt" data-item="top3-2" style="--btn-color:#6A1B9A;">Al afgedekt door bondgenoot <span class="fb-count" data-label="al-afgedekt" data-item="top3-2">0</span></button><button class="fb-btn" data-label="later" data-item="top3-2" style="--btn-color:#1565C0;">Interessant, later <span class="fb-count" data-label="later" data-item="top3-2">0</span></button><button class="fb-btn" data-label="geen-prio" data-item="top3-2" style="--btn-color:#E65100;">Interessant, geen prio nu <span class="fb-count" data-label="geen-prio" data-item="top3-2">0</span></button></div><div class="fb-comment-wrap"><textarea class="fb-comment" data-item="top3-2" placeholder="Optionele toelichting (bv. waarom niet, of welke bondgenoot)..." rows="2"></textarea><button class="fb-comment-save" data-item="top3-2">Bewaar opmerking</button><span class="fb-comment-status" data-item="top3-2"></span></div><div class="fb-comments-list" data-item="top3-2"></div>
+    </div>
+    
+    <div class="scan-item" id="item-top3-3">
+        <div class="scan-item-header">
+            <strong>FVD verovert lokale democratie: extreemrechts in het gemeentehuis</strong>
+            <span class="scan-item-meta">· stukroodvlees.nl</span>
+            <span style="background-color:#2E4057;color:#fff;padding:2px 6px;border-radius:3px;font-size:11px;font-weight:600;">75/100</span>
+             <span style="background-color:#FFF3E0;color:#E65100;padding:1px 5px;border-radius:3px;font-size:11px;">Blijft voorbijkomen - 4 dagen zichtbaar in radar. Niche bron (StukRoodVlees) - vereist item uit onderbelicht/niche bronnen.</span>
+        </div>
+        <div class="scan-item-body">
+            <em>Wat:</em> FVD boekte grote winst bij de gemeenteraadsverkiezingen, met name in gemeenten waar PVV niet deelnam. StukRoodVlees-analyse legt de factoren bloot: azc-verzet, partijorganisatie en PVV-afwezigheid. Een structurele verschuiving naar extreemrechts in de lokale politiek.<br>
+            <em>Eis:</em> Eis dat gemeenteraden hun anti-discriminatiebeleid en lokale grondrechtentoets aanscherpen nu FVD lokaal invloed krijgt.<br>
+            <em>Relevantie DGZ:</em> Raadsverkiezingen zijn net achter de rug. Het moment om te framen is nu, voor FVD zijn eigen narratief bepaalt. Rechtsstaatsradar.nl is precies het instrument hiervoor: extreemrechts verovert democratische instellingen, burgerweerstand is nodig.<br>
+            <a href="https://stukroodvlees.nl/waarom-deed-forum-het-zo-goed-bij-de-raadsverkiezingen/" target="_blank" rel="noopener">Lees meer</a>
+        </div>
+        <div class="fb-buttons" data-onderwerp="FVD verovert lokale democratie: extreemrechts in het gemeentehuis" data-item="top3-3"><button class="fb-btn" data-label="top" data-item="top3-3" style="--btn-color:#2E7D32;">Top — oppakken <span class="fb-count" data-label="top" data-item="top3-3">0</span></button><button class="fb-btn" data-label="niet-relevant" data-item="top3-3" style="--btn-color:#C62828;">Niet relevant <span class="fb-count" data-label="niet-relevant" data-item="top3-3">0</span></button><button class="fb-btn" data-label="al-afgedekt" data-item="top3-3" style="--btn-color:#6A1B9A;">Al afgedekt door bondgenoot <span class="fb-count" data-label="al-afgedekt" data-item="top3-3">0</span></button><button class="fb-btn" data-label="later" data-item="top3-3" style="--btn-color:#1565C0;">Interessant, later <span class="fb-count" data-label="later" data-item="top3-3">0</span></button><button class="fb-btn" data-label="geen-prio" data-item="top3-3" style="--btn-color:#E65100;">Interessant, geen prio nu <span class="fb-count" data-label="geen-prio" data-item="top3-3">0</span></button></div><div class="fb-comment-wrap"><textarea class="fb-comment" data-item="top3-3" placeholder="Optionele toelichting (bv. waarom niet, of welke bondgenoot)..." rows="2"></textarea><button class="fb-comment-save" data-item="top3-3">Bewaar opmerking</button><span class="fb-comment-status" data-item="top3-3"></span></div><div class="fb-comments-list" data-item="top3-3"></div>
+    </div>
+    
+    </section>
+    
+
+    <section class="scan-section" style="--section-color:#1565C0;">
+        <h2>Kansen</h2>
+        
+        
+    <div class="scan-item" id="item-kansen-1">
+        <div class="scan-item-header">
+            <strong>Asielwetten Eerste Kamer: uitkomst van cruciale stemming bepaalt campagnemoment</strong>
+            <span class="scan-item-meta">· nos.nl</span>
+            <span style="background-color:#2E4057;color:#fff;padding:2px 6px;border-radius:3px;font-size:11px;font-weight:600;">72/100</span>
+             <span style="background-color:#FFF3E0;color:#E65100;padding:1px 5px;border-radius:3px;font-size:11px;">Flash in pan sociale media vandaag (score 25). RSS-only in cross_pollination.</span>
+        </div>
+        <div class="scan-item-body">
+            <em>Wat:</em> De Eerste Kamer stemde vandaag over de Faber-asielwetten. CDA leek om na toezeggingen over strafbaarstelling, maar PVV dreigde zelf niet te steunen. De uitkomst bepaalt het vervolgmoment voor campagne.<br>
+            <em>Eis:</em> Als aangenomen: eis dat minister Van den Brink de meest inhumane bepalingen direct terugdraait. Als verworpen: steun momentum voor humaan asielbeleid.<br>
+            <em>Relevantie DGZ:</em> Dit is het politieke beslismoment van de week. Na de stemming is er een duidelijk campagnemoment: ofwel mobiliseren tegen aangenomen wet, ofwel vieren als de verdedigingslijn hield.<br>
+            <a href="https://nos.nl/l/2610373" target="_blank" rel="noopener">Lees meer</a>
+        </div>
+        <div class="fb-buttons" data-onderwerp="Asielwetten Eerste Kamer: uitkomst van cruciale stemming bepaalt campagnemoment" data-item="kansen-1"><button class="fb-btn" data-label="top" data-item="kansen-1" style="--btn-color:#2E7D32;">Top — oppakken <span class="fb-count" data-label="top" data-item="kansen-1">0</span></button><button class="fb-btn" data-label="niet-relevant" data-item="kansen-1" style="--btn-color:#C62828;">Niet relevant <span class="fb-count" data-label="niet-relevant" data-item="kansen-1">0</span></button><button class="fb-btn" data-label="al-afgedekt" data-item="kansen-1" style="--btn-color:#6A1B9A;">Al afgedekt door bondgenoot <span class="fb-count" data-label="al-afgedekt" data-item="kansen-1">0</span></button><button class="fb-btn" data-label="later" data-item="kansen-1" style="--btn-color:#1565C0;">Interessant, later <span class="fb-count" data-label="later" data-item="kansen-1">0</span></button><button class="fb-btn" data-label="geen-prio" data-item="kansen-1" style="--btn-color:#E65100;">Interessant, geen prio nu <span class="fb-count" data-label="geen-prio" data-item="kansen-1">0</span></button></div><div class="fb-comment-wrap"><textarea class="fb-comment" data-item="kansen-1" placeholder="Optionele toelichting (bv. waarom niet, of welke bondgenoot)..." rows="2"></textarea><button class="fb-comment-save" data-item="kansen-1">Bewaar opmerking</button><span class="fb-comment-status" data-item="kansen-1"></span></div><div class="fb-comments-list" data-item="kansen-1"></div>
+    </div>
+    
+    <div class="scan-item" id="item-kansen-2">
+        <div class="scan-item-header">
+            <strong>AFM: 120.000 woningeigenaren kunnen funderingsschade van 11 miljard niet betalen</strong>
+            <span class="scan-item-meta">· nos.nl</span>
+            <span style="background-color:#2E4057;color:#fff;padding:2px 6px;border-radius:3px;font-size:11px;font-weight:600;">68/100</span>
+             <span style="background-color:#FFF3E0;color:#E65100;padding:1px 5px;border-radius:3px;font-size:11px;">RSS-only - geen social media tractie.</span>
+        </div>
+        <div class="scan-item-body">
+            <em>Wat:</em> De AFM rapporteerde dat honderdduizenden woningeigenaren scheuren, vochtproblemen en scheefstand hebben, maar herstelkosten niet kunnen dragen. Geen rijksfonds, geen vangnet.<br>
+            <em>Eis:</em> Eis dat minister Keijzer een nationaal funderingsfonds instelt dat woningeigenaren met lage en middeninkomens compenseert.<br>
+            <em>Relevantie DGZ:</em> AFM-rapport is vers. 120.000 huishoudens heeft mobilisatiepotentieel. Woonbond is actief maar heeft geen funderingsfocus. DGZ kan klasse-frame toevoegen: rijke wijken worden geholpen, armere wijken niet.<br>
+            <a href="https://nos.nl/l/2610275" target="_blank" rel="noopener">Lees meer</a>
+        </div>
+        <div class="fb-buttons" data-onderwerp="AFM: 120.000 woningeigenaren kunnen funderingsschade van 11 miljard niet betalen" data-item="kansen-2"><button class="fb-btn" data-label="top" data-item="kansen-2" style="--btn-color:#2E7D32;">Top — oppakken <span class="fb-count" data-label="top" data-item="kansen-2">0</span></button><button class="fb-btn" data-label="niet-relevant" data-item="kansen-2" style="--btn-color:#C62828;">Niet relevant <span class="fb-count" data-label="niet-relevant" data-item="kansen-2">0</span></button><button class="fb-btn" data-label="al-afgedekt" data-item="kansen-2" style="--btn-color:#6A1B9A;">Al afgedekt door bondgenoot <span class="fb-count" data-label="al-afgedekt" data-item="kansen-2">0</span></button><button class="fb-btn" data-label="later" data-item="kansen-2" style="--btn-color:#1565C0;">Interessant, later <span class="fb-count" data-label="later" data-item="kansen-2">0</span></button><button class="fb-btn" data-label="geen-prio" data-item="kansen-2" style="--btn-color:#E65100;">Interessant, geen prio nu <span class="fb-count" data-label="geen-prio" data-item="kansen-2">0</span></button></div><div class="fb-comment-wrap"><textarea class="fb-comment" data-item="kansen-2" placeholder="Optionele toelichting (bv. waarom niet, of welke bondgenoot)..." rows="2"></textarea><button class="fb-comment-save" data-item="kansen-2">Bewaar opmerking</button><span class="fb-comment-status" data-item="kansen-2"></span></div><div class="fb-comments-list" data-item="kansen-2"></div>
+    </div>
+    
+    <div class="scan-item" id="item-kansen-3">
+        <div class="scan-item-header">
+            <strong>WIA-wachttijden lopen op tot 15 maanden - UWV bezwijkt onder bezuinigingen</strong>
+            <span class="scan-item-meta">· nos.nl</span>
+            <span style="background-color:#2E4057;color:#fff;padding:2px 6px;border-radius:3px;font-size:11px;font-weight:600;">67/100</span>
+            
+        </div>
+        <div class="scan-item-body">
+            <em>Wat:</em> Arbeidsongeschikten moeten 15 maanden wachten op een verzekeringsarts voor hun WIA-uitkering. UWV heeft niet genoeg personeel door bezuinigingen. Tweede Kamer ontving hierover een Woo-besluit.<br>
+            <em>Eis:</em> Eis dat minister Aartsen een spoedplan voor UWV-capaciteit indient en tijdelijke compensatie regelt voor mensen die te lang wachten.<br>
+            <em>Relevantie DGZ:</em> WIA-crisis raakt de meest kwetsbare werkenden: mensen die ziek zijn en geen inkomenszekerheid hebben. Ravijnjaar-frame bij uitstek: uitvoeringsinstantie bezwijkt, burger betaalt de prijs.<br>
+            <a href="https://nos.nl/l/2610264" target="_blank" rel="noopener">Lees meer</a>
+        </div>
+        <div class="fb-buttons" data-onderwerp="WIA-wachttijden lopen op tot 15 maanden - UWV bezwijkt onder bezuinigingen" data-item="kansen-3"><button class="fb-btn" data-label="top" data-item="kansen-3" style="--btn-color:#2E7D32;">Top — oppakken <span class="fb-count" data-label="top" data-item="kansen-3">0</span></button><button class="fb-btn" data-label="niet-relevant" data-item="kansen-3" style="--btn-color:#C62828;">Niet relevant <span class="fb-count" data-label="niet-relevant" data-item="kansen-3">0</span></button><button class="fb-btn" data-label="al-afgedekt" data-item="kansen-3" style="--btn-color:#6A1B9A;">Al afgedekt door bondgenoot <span class="fb-count" data-label="al-afgedekt" data-item="kansen-3">0</span></button><button class="fb-btn" data-label="later" data-item="kansen-3" style="--btn-color:#1565C0;">Interessant, later <span class="fb-count" data-label="later" data-item="kansen-3">0</span></button><button class="fb-btn" data-label="geen-prio" data-item="kansen-3" style="--btn-color:#E65100;">Interessant, geen prio nu <span class="fb-count" data-label="geen-prio" data-item="kansen-3">0</span></button></div><div class="fb-comment-wrap"><textarea class="fb-comment" data-item="kansen-3" placeholder="Optionele toelichting (bv. waarom niet, of welke bondgenoot)..." rows="2"></textarea><button class="fb-comment-save" data-item="kansen-3">Bewaar opmerking</button><span class="fb-comment-status" data-item="kansen-3"></span></div><div class="fb-comments-list" data-item="kansen-3"></div>
+    </div>
+    
+    <div class="scan-item" id="item-kansen-4">
+        <div class="scan-item-header">
+            <strong>Griekse politie zet migranten in als huurlingen voor gewelddadige pushbacks</strong>
+            <span class="scan-item-meta">· nos.nl</span>
+            <span style="background-color:#2E4057;color:#fff;padding:2px 6px;border-radius:3px;font-size:11px;font-weight:600;">65/100</span>
+            
+        </div>
+        <div class="scan-item-body">
+            <em>Wat:</em> BBC-onderzoek: Griekenland recruteert migranten zelf om andere migranten gewelddadig terug te sturen naar Turkije. Al sinds 2020 structureel beleid. Nederland co-financiert Europese grensagentschappen.<br>
+            <em>Eis:</em> Eis dat minister Van den Brink de Nederlandse bijdrage aan Frontex opschort totdat pushbacks door Griekenland worden gestopt.<br>
+            <em>Relevantie DGZ:</em> BBC-onderzoek is vandaag gepubliceerd - vers nieuws. NJCM besprak eerste lessen van het Migratiepact. Vluchtelingenwerk is actief maar zonder Frontex-focus. DGZ kan het Nederlandse medeplichtigheidsframe starten.<br>
+            <a href="https://nos.nl/l/2610458" target="_blank" rel="noopener">Lees meer</a>
+        </div>
+        <div class="fb-buttons" data-onderwerp="Griekse politie zet migranten in als huurlingen voor gewelddadige pushbacks" data-item="kansen-4"><button class="fb-btn" data-label="top" data-item="kansen-4" style="--btn-color:#2E7D32;">Top — oppakken <span class="fb-count" data-label="top" data-item="kansen-4">0</span></button><button class="fb-btn" data-label="niet-relevant" data-item="kansen-4" style="--btn-color:#C62828;">Niet relevant <span class="fb-count" data-label="niet-relevant" data-item="kansen-4">0</span></button><button class="fb-btn" data-label="al-afgedekt" data-item="kansen-4" style="--btn-color:#6A1B9A;">Al afgedekt door bondgenoot <span class="fb-count" data-label="al-afgedekt" data-item="kansen-4">0</span></button><button class="fb-btn" data-label="later" data-item="kansen-4" style="--btn-color:#1565C0;">Interessant, later <span class="fb-count" data-label="later" data-item="kansen-4">0</span></button><button class="fb-btn" data-label="geen-prio" data-item="kansen-4" style="--btn-color:#E65100;">Interessant, geen prio nu <span class="fb-count" data-label="geen-prio" data-item="kansen-4">0</span></button></div><div class="fb-comment-wrap"><textarea class="fb-comment" data-item="kansen-4" placeholder="Optionele toelichting (bv. waarom niet, of welke bondgenoot)..." rows="2"></textarea><button class="fb-comment-save" data-item="kansen-4">Bewaar opmerking</button><span class="fb-comment-status" data-item="kansen-4"></span></div><div class="fb-comments-list" data-item="kansen-4"></div>
+    </div>
+    
+    <div class="scan-item" id="item-kansen-5">
+        <div class="scan-item-header">
+            <strong>Staat gaat in beroep tegen klimaatuitspraak Bonaire: kabinet kiest kant van fossiel</strong>
+            <span class="scan-item-meta">· nos.nl</span>
+            <span style="background-color:#2E4057;color:#fff;padding:2px 6px;border-radius:3px;font-size:11px;font-weight:600;">62/100</span>
+             <span style="background-color:#FFF3E0;color:#E65100;padding:1px 5px;border-radius:3px;font-size:11px;">RSS-only - geen social media tractie.</span>
+        </div>
+        <div class="scan-item-body">
+            <em>Wat:</em> Na de positieve uitspraak over klimaatcompensatie voor Bonaire gaat de staat in hoger beroep. Greenpeace en bewoners zijn kritisch. Het kabinet kiest expliciet de kant van de industrie boven kwetsbare eilandbewoners.<br>
+            <em>Eis:</em> Eis dat het kabinet het hoger beroep intrekt en klimaatcompensatie voor Bonaire regelt.<br>
+            <em>Relevantie DGZ:</em> Hoger beroepsbesluit is deze week. Greenpeace is al actief (lagere meerwaarde DGZ), maar DGZ kan het bredere kabinet-kiest-fossiel-boven-burgers frame versterken als coalitiecampagne.<br>
+            <a href="https://nos.nl/l/2609889" target="_blank" rel="noopener">Lees meer</a>
+        </div>
+        <div class="fb-buttons" data-onderwerp="Staat gaat in beroep tegen klimaatuitspraak Bonaire: kabinet kiest kant van fossiel" data-item="kansen-5"><button class="fb-btn" data-label="top" data-item="kansen-5" style="--btn-color:#2E7D32;">Top — oppakken <span class="fb-count" data-label="top" data-item="kansen-5">0</span></button><button class="fb-btn" data-label="niet-relevant" data-item="kansen-5" style="--btn-color:#C62828;">Niet relevant <span class="fb-count" data-label="niet-relevant" data-item="kansen-5">0</span></button><button class="fb-btn" data-label="al-afgedekt" data-item="kansen-5" style="--btn-color:#6A1B9A;">Al afgedekt door bondgenoot <span class="fb-count" data-label="al-afgedekt" data-item="kansen-5">0</span></button><button class="fb-btn" data-label="later" data-item="kansen-5" style="--btn-color:#1565C0;">Interessant, later <span class="fb-count" data-label="later" data-item="kansen-5">0</span></button><button class="fb-btn" data-label="geen-prio" data-item="kansen-5" style="--btn-color:#E65100;">Interessant, geen prio nu <span class="fb-count" data-label="geen-prio" data-item="kansen-5">0</span></button></div><div class="fb-comment-wrap"><textarea class="fb-comment" data-item="kansen-5" placeholder="Optionele toelichting (bv. waarom niet, of welke bondgenoot)..." rows="2"></textarea><button class="fb-comment-save" data-item="kansen-5">Bewaar opmerking</button><span class="fb-comment-status" data-item="kansen-5"></span></div><div class="fb-comments-list" data-item="kansen-5"></div>
+    </div>
+    
+    </section>
+    
+
+    <section class="scan-section" style="--section-color:#6A1B9A;">
+        <h2>Onderbelichte kansen (met GOTP)</h2>
+        <p class="section-intro">Onderwerpen met weinig media-aandacht maar wel campagne-potentie via gedupeerden, columnisten of lokale gemeenschappen als trekker (GOTP).</p>
+        
+    <div class="scan-item" id="item-onderbelicht-1">
+        <div class="scan-item-header">
+            <strong>Zwangerschapsdiscriminatie: bijna helft werkende vrouwen is slachtoffer</strong>
+            <span class="scan-item-meta">· nos.nl</span>
+            <span style="background-color:#2E4057;color:#fff;padding:2px 6px;border-radius:3px;font-size:11px;font-weight:600;">69/100</span>
+             <span style="background-color:#FFF3E0;color:#E65100;padding:1px 5px;border-radius:3px;font-size:11px;">Geen social media tractie - structureel onderbelicht.</span>
+        </div>
+        <div class="scan-item-body">
+            <em>Wat:</em> Ministerie van Sociale Zaken-onderzoek: 46% van zwangere werkenden is vermoedelijk slachtoffer van discriminatie. Werkgevers weigeren contractverlenging of promotie vanwege zwangerschap. Structureel probleem, weinig media-aandacht.<br>
+            <em>Eis:</em> Eis dat minister Van Hijum een nationaal handhavingsprogramma instelt met sancties voor werkgevers die zwangerschapsdiscriminatie plegen.<br>
+            <em>Relevantie DGZ:</em> Dit is structurele discriminatie van bijna de helft van de beroepsbevolking. Het ministerie heeft zelf de cijfers gepubliceerd. Geen campagne-NGO heeft dit opgepakt. DGZ kan het klasse-gender verhaal starten: vrouwen worden gestraft voor het krijgen van kinderen.<br><em style="color:#444;">Campagnekans:</em> FNV Vrouwen of Emancipator, individuele zwangere vrouwen die discriminatie meemaakten en bereid zijn te spreken<br>
+            <a href="https://nos.nl/l/2609788" target="_blank" rel="noopener">Lees meer</a>
+        </div>
+        <div class="fb-buttons" data-onderwerp="Zwangerschapsdiscriminatie: bijna helft werkende vrouwen is slachtoffer" data-item="onderbelicht-1"><button class="fb-btn" data-label="top" data-item="onderbelicht-1" style="--btn-color:#2E7D32;">Top — oppakken <span class="fb-count" data-label="top" data-item="onderbelicht-1">0</span></button><button class="fb-btn" data-label="niet-relevant" data-item="onderbelicht-1" style="--btn-color:#C62828;">Niet relevant <span class="fb-count" data-label="niet-relevant" data-item="onderbelicht-1">0</span></button><button class="fb-btn" data-label="al-afgedekt" data-item="onderbelicht-1" style="--btn-color:#6A1B9A;">Al afgedekt door bondgenoot <span class="fb-count" data-label="al-afgedekt" data-item="onderbelicht-1">0</span></button><button class="fb-btn" data-label="later" data-item="onderbelicht-1" style="--btn-color:#1565C0;">Interessant, later <span class="fb-count" data-label="later" data-item="onderbelicht-1">0</span></button><button class="fb-btn" data-label="geen-prio" data-item="onderbelicht-1" style="--btn-color:#E65100;">Interessant, geen prio nu <span class="fb-count" data-label="geen-prio" data-item="onderbelicht-1">0</span></button></div><div class="fb-comment-wrap"><textarea class="fb-comment" data-item="onderbelicht-1" placeholder="Optionele toelichting (bv. waarom niet, of welke bondgenoot)..." rows="2"></textarea><button class="fb-comment-save" data-item="onderbelicht-1">Bewaar opmerking</button><span class="fb-comment-status" data-item="onderbelicht-1"></span></div><div class="fb-comments-list" data-item="onderbelicht-1"></div>
+    </div>
+    
+    <div class="scan-item" id="item-onderbelicht-2">
+        <div class="scan-item-header">
+            <strong>Schuldhulpverleners: gemeenten missen kansen door capaciteitstekort</strong>
+            <span class="scan-item-meta">· www.nu.nl</span>
+            <span style="background-color:#2E4057;color:#fff;padding:2px 6px;border-radius:3px;font-size:11px;font-weight:600;">68/100</span>
+             <span style="background-color:#FFF3E0;color:#E65100;padding:1px 5px;border-radius:3px;font-size:11px;">Geen social media tractie - DGZ kan het gesprek starten.</span>
+        </div>
+        <div class="scan-item-body">
+            <em>Wat:</em> Gemeenten ontvangen steeds meer signalen over mensen met betalingsachterstand, maar hebben niet genoeg personeel om actie te ondernemen. Minder dan de helft van de signalen leidt tot daadwerkelijke hulp.<br>
+            <em>Eis:</em> Eis dat het kabinet structurele financiering voor gemeentelijke schuldhulpverlening regelt in de voorjaarsbegroting.<br>
+            <em>Relevantie DGZ:</em> Ombudsman en schuldhulpverleners signaleren hetzelfde probleem tegelijk: de overheid ziet de schuldencrisis groeien maar weigert te investeren. Samen vormen deze bronnen een sterk bewijs voor bewuste verwaarlozing van kwetsbare burgers.<br><em style="color:#444;">Campagnekans:</em> Schuldhulpverleners zoals Anna IJdema-Bekema (geciteerd in NRC), lokale schuldhulporganisaties die publiek willen spreken<br>
+            <a href="https://www.nu.nl/economie/6392135/meer-laatbetalers-in-beeld-maar-hulp-komt-minder-vaak-van-de-grond.html" target="_blank" rel="noopener">Lees meer</a>
+        </div>
+        <div class="fb-buttons" data-onderwerp="Schuldhulpverleners: gemeenten missen kansen door capaciteitstekort" data-item="onderbelicht-2"><button class="fb-btn" data-label="top" data-item="onderbelicht-2" style="--btn-color:#2E7D32;">Top — oppakken <span class="fb-count" data-label="top" data-item="onderbelicht-2">0</span></button><button class="fb-btn" data-label="niet-relevant" data-item="onderbelicht-2" style="--btn-color:#C62828;">Niet relevant <span class="fb-count" data-label="niet-relevant" data-item="onderbelicht-2">0</span></button><button class="fb-btn" data-label="al-afgedekt" data-item="onderbelicht-2" style="--btn-color:#6A1B9A;">Al afgedekt door bondgenoot <span class="fb-count" data-label="al-afgedekt" data-item="onderbelicht-2">0</span></button><button class="fb-btn" data-label="later" data-item="onderbelicht-2" style="--btn-color:#1565C0;">Interessant, later <span class="fb-count" data-label="later" data-item="onderbelicht-2">0</span></button><button class="fb-btn" data-label="geen-prio" data-item="onderbelicht-2" style="--btn-color:#E65100;">Interessant, geen prio nu <span class="fb-count" data-label="geen-prio" data-item="onderbelicht-2">0</span></button></div><div class="fb-comment-wrap"><textarea class="fb-comment" data-item="onderbelicht-2" placeholder="Optionele toelichting (bv. waarom niet, of welke bondgenoot)..." rows="2"></textarea><button class="fb-comment-save" data-item="onderbelicht-2">Bewaar opmerking</button><span class="fb-comment-status" data-item="onderbelicht-2"></span></div><div class="fb-comments-list" data-item="onderbelicht-2"></div>
+    </div>
+    
+    <div class="scan-item" id="item-onderbelicht-3">
+        <div class="scan-item-header">
+            <strong>9 mei: anti-fascistisch protest bij azc Ter Apel - solidariteitskans</strong>
+            <span class="scan-item-meta">· www.doorbraak.eu</span>
+            <span style="background-color:#2E4057;color:#fff;padding:2px 6px;border-radius:3px;font-size:11px;font-weight:600;">68/100</span>
+             <span style="background-color:#FFF3E0;color:#E65100;padding:1px 5px;border-radius:3px;font-size:11px;">Niche bron (Doorbraak) - nauwelijks opgepikt in mainstream media.</span>
+        </div>
+        <div class="scan-item-body">
+            <em>Wat:</em> Op 9 mei demonstreren anti-fascisten bij het azc in Ter Apel tegen een extreemrechtse haatactie. Organisatoren vragen solidariteit: &#x27;vluchtelingen in Ter Apel verdienen rust en vrede&#x27;. Bron: Doorbraak.eu.<br>
+            <em>Eis:</em> Eis dat de burgemeester van Westerwolde expliciet afstand neemt van de extreemrechtse haatactie bij het azc.<br>
+            <em>Relevantie DGZ:</em> 9 mei is over 3 weken - genoeg tijd om actie op te bouwen. Dit is een rechtsstaat-x-migratie signaal dat DGZ kan versterken richting eigen leden. Niche bron, nauwelijks opgepikt in mainstream.<br><em style="color:#444;">Campagnekans:</em> Doorbraak.eu (anti-fascistische organisatie), lokale bewoners Westerwolde die solidariteit willen tonen, Defence for Children<br>
+            <a href="https://www.doorbraak.eu/9-mei-ter-apel-demonstratie-tegen-extreem-rechtse-haatactie-bij-azc/" target="_blank" rel="noopener">Lees meer</a>
+        </div>
+        <div class="fb-buttons" data-onderwerp="9 mei: anti-fascistisch protest bij azc Ter Apel - solidariteitskans" data-item="onderbelicht-3"><button class="fb-btn" data-label="top" data-item="onderbelicht-3" style="--btn-color:#2E7D32;">Top — oppakken <span class="fb-count" data-label="top" data-item="onderbelicht-3">0</span></button><button class="fb-btn" data-label="niet-relevant" data-item="onderbelicht-3" style="--btn-color:#C62828;">Niet relevant <span class="fb-count" data-label="niet-relevant" data-item="onderbelicht-3">0</span></button><button class="fb-btn" data-label="al-afgedekt" data-item="onderbelicht-3" style="--btn-color:#6A1B9A;">Al afgedekt door bondgenoot <span class="fb-count" data-label="al-afgedekt" data-item="onderbelicht-3">0</span></button><button class="fb-btn" data-label="later" data-item="onderbelicht-3" style="--btn-color:#1565C0;">Interessant, later <span class="fb-count" data-label="later" data-item="onderbelicht-3">0</span></button><button class="fb-btn" data-label="geen-prio" data-item="onderbelicht-3" style="--btn-color:#E65100;">Interessant, geen prio nu <span class="fb-count" data-label="geen-prio" data-item="onderbelicht-3">0</span></button></div><div class="fb-comment-wrap"><textarea class="fb-comment" data-item="onderbelicht-3" placeholder="Optionele toelichting (bv. waarom niet, of welke bondgenoot)..." rows="2"></textarea><button class="fb-comment-save" data-item="onderbelicht-3">Bewaar opmerking</button><span class="fb-comment-status" data-item="onderbelicht-3"></span></div><div class="fb-comments-list" data-item="onderbelicht-3"></div>
+    </div>
+    
+    <div class="scan-item" id="item-onderbelicht-4">
+        <div class="scan-item-header">
+            <strong>AIVD/MIVD tappen massaal internetverkeer af - toezichthouder: forse inbreuk op grondrechten</strong>
+            <span class="scan-item-meta">· nos.nl</span>
+            <span style="background-color:#2E4057;color:#fff;padding:2px 6px;border-radius:3px;font-size:11px;font-weight:600;">64/100</span>
+             <span style="background-color:#FFF3E0;color:#E65100;padding:1px 5px;border-radius:3px;font-size:11px;">Geen social media tractie - jaarverslagsignaal dat makkelijk verdwijnt.</span>
+        </div>
+        <div class="scan-item-body">
+            <em>Wat:</em> Toetsingscommissie Inzet Bevoegdheden (TIB) waarschuwt dat de inlichtingendiensten steeds meer bulkdata vergaren met beperkt resultaat. De rechtvaardiging &#x27;geopolitieke onrust&#x27; maakt de grondrechtenschendingen structureel.<br>
+            <em>Eis:</em> Eis dat de Tweede Kamer de wet op de inlichtingendiensten aanscherpt zodat bulkdataverzameling aan strikte proportionaliteitseisen wordt gebonden.<br>
+            <em>Relevantie DGZ:</em> Dit jaarverslag wordt amper opgepikt door mainstream media. Bits of Freedom is actief op privacyrecht maar niet specifiek op Nederlandse inlichtingendiensten. DGZ kan het rechtsstaatsverhaal koppelen aan surveillance van gewone burgers.<br><em style="color:#444;">Campagnekans:</em> Bits of Freedom, privacyrechtadvocaten, journalisten die over AIVD schrijven<br>
+            <a href="https://nos.nl/l/2610425" target="_blank" rel="noopener">Lees meer</a>
+        </div>
+        <div class="fb-buttons" data-onderwerp="AIVD/MIVD tappen massaal internetverkeer af - toezichthouder: forse inbreuk op grondrechten" data-item="onderbelicht-4"><button class="fb-btn" data-label="top" data-item="onderbelicht-4" style="--btn-color:#2E7D32;">Top — oppakken <span class="fb-count" data-label="top" data-item="onderbelicht-4">0</span></button><button class="fb-btn" data-label="niet-relevant" data-item="onderbelicht-4" style="--btn-color:#C62828;">Niet relevant <span class="fb-count" data-label="niet-relevant" data-item="onderbelicht-4">0</span></button><button class="fb-btn" data-label="al-afgedekt" data-item="onderbelicht-4" style="--btn-color:#6A1B9A;">Al afgedekt door bondgenoot <span class="fb-count" data-label="al-afgedekt" data-item="onderbelicht-4">0</span></button><button class="fb-btn" data-label="later" data-item="onderbelicht-4" style="--btn-color:#1565C0;">Interessant, later <span class="fb-count" data-label="later" data-item="onderbelicht-4">0</span></button><button class="fb-btn" data-label="geen-prio" data-item="onderbelicht-4" style="--btn-color:#E65100;">Interessant, geen prio nu <span class="fb-count" data-label="geen-prio" data-item="onderbelicht-4">0</span></button></div><div class="fb-comment-wrap"><textarea class="fb-comment" data-item="onderbelicht-4" placeholder="Optionele toelichting (bv. waarom niet, of welke bondgenoot)..." rows="2"></textarea><button class="fb-comment-save" data-item="onderbelicht-4">Bewaar opmerking</button><span class="fb-comment-status" data-item="onderbelicht-4"></span></div><div class="fb-comments-list" data-item="onderbelicht-4"></div>
+    </div>
+    
+    </section>
+    
+
+    <section class="scan-section" style="--section-color:#00695C;">
+        <h2>Samenwerkingskansen met onderzoeks-NGO&#x27;s</h2>
+        <p class="section-intro">(Onderzoeks/Lobby)-NGO&#x27;s met een vers rapport, zonder uitgebreide campagne-infrastructuur. Kans voor samenwerking of bondgenootrol?</p>
+        
+    <div class="scan-item" id="item-samenwerking-1">
+        <div class="scan-item-header">
+            <strong>Bits of Freedom - profileringsalgoritmen beschermen onvoldoende tegen discriminatie</strong>
+            <span class="scan-item-meta">· www.bitsoffreedom.nl</span>
+            <span style="background-color:#2E4057;color:#fff;padding:2px 6px;border-radius:3px;font-size:11px;font-weight:600;">73/100</span>
+            
+        </div>
+        <div class="scan-item-body">
+            <em>Wat:</em> Bits of Freedom publiceerde analyse dat het normenkader voor profileringsalgoritmen burgers onvoldoende beschermt. Overheden en bedrijven gebruiken algoritmen die discrimineren op basis van postcodes, inkomen en etniciteit.<br>
+            <em>Eis:</em> Eis dat de Autoriteit Persoonsgegevens een verbod instelt op discriminerende profileringsalgoritmen bij overheidsinstanties.<br>
+            <em>Relevantie DGZ:</em> Algoritmediscriminatie raakt precies de DGZ-doelgroep: mensen in kwetsbare posities die extra hard worden geraakt door overheidsalgoritmen. Bits of Freedom heeft de technische analyse. DGZ heeft het bereik. Samen: zij inhoud, DGZ burgercampagne.<br>
+            <a href="https://www.bitsoffreedom.nl/2026/04/09/het-normenkader-voor-profileringsalgoritmen-beschermd-onvoldoende-tegen-discriminatie/" target="_blank" rel="noopener">Lees meer</a>
+        </div>
+        <div class="fb-buttons" data-onderwerp="Bits of Freedom - profileringsalgoritmen beschermen onvoldoende tegen discriminatie" data-item="samenwerking-1"><button class="fb-btn" data-label="top" data-item="samenwerking-1" style="--btn-color:#2E7D32;">Top — oppakken <span class="fb-count" data-label="top" data-item="samenwerking-1">0</span></button><button class="fb-btn" data-label="niet-relevant" data-item="samenwerking-1" style="--btn-color:#C62828;">Niet relevant <span class="fb-count" data-label="niet-relevant" data-item="samenwerking-1">0</span></button><button class="fb-btn" data-label="al-afgedekt" data-item="samenwerking-1" style="--btn-color:#6A1B9A;">Al afgedekt door bondgenoot <span class="fb-count" data-label="al-afgedekt" data-item="samenwerking-1">0</span></button><button class="fb-btn" data-label="later" data-item="samenwerking-1" style="--btn-color:#1565C0;">Interessant, later <span class="fb-count" data-label="later" data-item="samenwerking-1">0</span></button><button class="fb-btn" data-label="geen-prio" data-item="samenwerking-1" style="--btn-color:#E65100;">Interessant, geen prio nu <span class="fb-count" data-label="geen-prio" data-item="samenwerking-1">0</span></button></div><div class="fb-comment-wrap"><textarea class="fb-comment" data-item="samenwerking-1" placeholder="Optionele toelichting (bv. waarom niet, of welke bondgenoot)..." rows="2"></textarea><button class="fb-comment-save" data-item="samenwerking-1">Bewaar opmerking</button><span class="fb-comment-status" data-item="samenwerking-1"></span></div><div class="fb-comments-list" data-item="samenwerking-1"></div>
+    </div>
+    
+    <div class="scan-item" id="item-samenwerking-2">
+        <div class="scan-item-header">
+            <strong>SOMO - 1.400 corporate groepen ontkomen aan mensenrechtenplicht door verzwakte CSDDD</strong>
+            <span class="scan-item-meta">· www.somo.nl</span>
+            <span style="background-color:#2E4057;color:#fff;padding:2px 6px;border-radius:3px;font-size:11px;font-weight:600;">71/100</span>
+            
+        </div>
+        <div class="scan-item-body">
+            <em>Wat:</em> SOMO publiceerde vandaag dat 1.400 corporate groepen die eerder onder de CSDDD vielen nu buiten bereik vallen door de verzwakking van de Europese richtlijn.<br>
+            <em>Eis:</em> Eis dat minister Beljaarts de CSDDD-implementatie in Nederland strenger maakt dan de Europese minimumstandaard.<br>
+            <em>Relevantie DGZ:</em> SOMO heeft vandaag gepubliceerd - vers rapport. DGZ heeft het bereik en campagneplatform. Milieudefensie is actief op CSDDD maar met klimaatfocus. DGZ kan de mensenrechtenhoek pakken: 1.400 bedrijven ontkomen ongestraft aan hun verplichtingen.<br>
+            <a href="https://www.somo.nl/updated-datahub-shows-1400-corporate-groups-covered-by-weakened-csddd/" target="_blank" rel="noopener">Lees meer</a>
+        </div>
+        <div class="fb-buttons" data-onderwerp="SOMO - 1.400 corporate groepen ontkomen aan mensenrechtenplicht door verzwakte CSDDD" data-item="samenwerking-2"><button class="fb-btn" data-label="top" data-item="samenwerking-2" style="--btn-color:#2E7D32;">Top — oppakken <span class="fb-count" data-label="top" data-item="samenwerking-2">0</span></button><button class="fb-btn" data-label="niet-relevant" data-item="samenwerking-2" style="--btn-color:#C62828;">Niet relevant <span class="fb-count" data-label="niet-relevant" data-item="samenwerking-2">0</span></button><button class="fb-btn" data-label="al-afgedekt" data-item="samenwerking-2" style="--btn-color:#6A1B9A;">Al afgedekt door bondgenoot <span class="fb-count" data-label="al-afgedekt" data-item="samenwerking-2">0</span></button><button class="fb-btn" data-label="later" data-item="samenwerking-2" style="--btn-color:#1565C0;">Interessant, later <span class="fb-count" data-label="later" data-item="samenwerking-2">0</span></button><button class="fb-btn" data-label="geen-prio" data-item="samenwerking-2" style="--btn-color:#E65100;">Interessant, geen prio nu <span class="fb-count" data-label="geen-prio" data-item="samenwerking-2">0</span></button></div><div class="fb-comment-wrap"><textarea class="fb-comment" data-item="samenwerking-2" placeholder="Optionele toelichting (bv. waarom niet, of welke bondgenoot)..." rows="2"></textarea><button class="fb-comment-save" data-item="samenwerking-2">Bewaar opmerking</button><span class="fb-comment-status" data-item="samenwerking-2"></span></div><div class="fb-comments-list" data-item="samenwerking-2"></div>
+    </div>
+    
+    <div class="scan-item" id="item-samenwerking-3">
+        <div class="scan-item-header">
+            <strong>NJCM - eerste lessen Migratiepact: rechtsbescherming asielzoekers onder druk</strong>
+            <span class="scan-item-meta">· njcm.nl</span>
+            <span style="background-color:#2E4057;color:#fff;padding:2px 6px;border-radius:3px;font-size:11px;font-weight:600;">70/100</span>
+            
+        </div>
+        <div class="scan-item-body">
+            <em>Wat:</em> NJCM hield een rondetafelgesprek over de eerste lessen van het Europese Migratiepact. Rechtsbescherming van asielzoekers wordt bij implementatie significant verzwakt. Vluchtelingenwerk is actief op praktische hulp, niet juridische bescherming.<br>
+            <em>Eis:</em> Eis dat minister Van den Brink de NJCM-aanbevelingen over rechtsbescherming overneemt bij de nationale implementatie van het Migratiepact.<br>
+            <em>Relevantie DGZ:</em> Asielwetten staan vandaag centraal in de politiek. NJCM heeft de juridische onderbouwing. DGZ kan dit vertalen naar een burgercampagne. Zij de inhoud, DGZ het bereik en campagneplatform.<br>
+            <a href="https://njcm.nl/rondetafelgesprek-de-eerste-lessen-van-het-migratiepact/" target="_blank" rel="noopener">Lees meer</a>
+        </div>
+        <div class="fb-buttons" data-onderwerp="NJCM - eerste lessen Migratiepact: rechtsbescherming asielzoekers onder druk" data-item="samenwerking-3"><button class="fb-btn" data-label="top" data-item="samenwerking-3" style="--btn-color:#2E7D32;">Top — oppakken <span class="fb-count" data-label="top" data-item="samenwerking-3">0</span></button><button class="fb-btn" data-label="niet-relevant" data-item="samenwerking-3" style="--btn-color:#C62828;">Niet relevant <span class="fb-count" data-label="niet-relevant" data-item="samenwerking-3">0</span></button><button class="fb-btn" data-label="al-afgedekt" data-item="samenwerking-3" style="--btn-color:#6A1B9A;">Al afgedekt door bondgenoot <span class="fb-count" data-label="al-afgedekt" data-item="samenwerking-3">0</span></button><button class="fb-btn" data-label="later" data-item="samenwerking-3" style="--btn-color:#1565C0;">Interessant, later <span class="fb-count" data-label="later" data-item="samenwerking-3">0</span></button><button class="fb-btn" data-label="geen-prio" data-item="samenwerking-3" style="--btn-color:#E65100;">Interessant, geen prio nu <span class="fb-count" data-label="geen-prio" data-item="samenwerking-3">0</span></button></div><div class="fb-comment-wrap"><textarea class="fb-comment" data-item="samenwerking-3" placeholder="Optionele toelichting (bv. waarom niet, of welke bondgenoot)..." rows="2"></textarea><button class="fb-comment-save" data-item="samenwerking-3">Bewaar opmerking</button><span class="fb-comment-status" data-item="samenwerking-3"></span></div><div class="fb-comments-list" data-item="samenwerking-3"></div>
+    </div>
+    
+    </section>
+    
+<section class="scan-section signalen" style="--section-color:#444;"><h2>Signalen van de week</h2><div class="signal-group"><strong>Alleen RSS:</strong> <span class="signal-chip">Ombudsman bijstandsbesparingen - beleidskans zonder publiek momentum. DGZ kan gesprek starten.</span><span class="signal-chip">Asielwetten Eerste Kamer - politiek moment vandaag. Uitkomst bepaalt campagnemoment.</span><span class="signal-chip">Klimaatzaak Bonaire hoger beroep - beleidsmatige tegenbeweging van staat.</span><span class="signal-chip">Hoe verder na Orban? - vergelijkingsmoment voor Nederlandse rechtsstaatsdiscussie.</span></div><div class="signal-group"><strong>Flash in pan (1 dag):</strong> <span class="signal-chip">donald trump (1 dag, score 35 - internationale context, beperkte NL-campagnehaak)</span><span class="signal-chip">eerste kamer (1 dag, score 25 - asielwetten, vandaag actueel)</span><span class="signal-chip">koningspaar en jetten bij Trump (1 dag, score 25 - diplomatiek ongemak, geen campagnemoment)</span></div></section>
+<section class="scan-section" style="--section-color:#888;"><h2>Niet oppakken</h2><ul class="afraders-list"><li>Sonja Barend overlijden - mediacyclus is herdenking en respect, geen campagnehaak mogelijk zonder te kwetsen. Blijft afgeraden in dagelijkse scan.</li><li>Kunstroof Drents Museum - amusementnieuws, geen elite-vs-burger frame, geen DGZ-relevantie. Blijft afgeraden in dagelijkse scan.</li><li>Koninklijk bezoek Trump/Jetten - diplomatiek domein, DGZ heeft geen rol en riskeert versplintering van frames richting &#x27;anti-monarchie&#x27; in plaats van progressief campagnemoment.</li></ul></section>
+
+<footer>Rapid Response Scan · DeGoedeZaak · di 14 april 2026 · Feedback wordt anoniem geaggregeerd.</footer>
+
+<script>
+(function () {
+  const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwVBQpmhqpfZyat-uxOgGjTeUeZiYN4A98gep4QW_7KABidfRqFMhNUjQ9IhYgG5GA0/exec";
+  const SCAN_DATUM = "2026-04-14";
+  const POLL_INTERVAL_MS = 30000;
+
+  // anonieme client-id voor dedup (niet zichtbaar voor anderen)
+  function getClientId() {
+    let id = localStorage.getItem('dgz_client_id');
+    if (!id) {
+      id = 'c_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+      localStorage.setItem('dgz_client_id', id);
+    }
+    return id;
+  }
+  const CLIENT_ID = getClientId();
+
+  const statusEl = document.getElementById('backend-status');
+  function setStatus(kind, text) {
+    statusEl.className = 'backend-status ' + kind;
+    statusEl.textContent = text;
+  }
+
+  if (!BACKEND_URL) {
+    setStatus('err', 'Geen backend-URL ingesteld. Zet apps_script_url in scan_config.json.');
+    return;
+  }
+
+  // Houdt de eigen keuze per item bij (voor visuele "selected"-state)
+  let myChoices = {};
+  try {
+    myChoices = JSON.parse(localStorage.getItem('dgz_choices_' + SCAN_DATUM) || '{}');
+  } catch (e) {}
+
+  function saveMyChoices() {
+    localStorage.setItem('dgz_choices_' + SCAN_DATUM, JSON.stringify(myChoices));
+  }
+
+  function applyMyChoices() {
+    document.querySelectorAll('.fb-btn').forEach(function (btn) {
+      const item = btn.getAttribute('data-item');
+      const label = btn.getAttribute('data-label');
+      btn.classList.toggle('selected', myChoices[item] === label);
+    });
+  }
+
+  async function submitFeedback(itemId, onderwerp, label, comment) {
+    const payload = {
+      scan_datum: SCAN_DATUM,
+      item_id: itemId,
+      onderwerp: onderwerp,
+      label: label,
+      comment: comment || '',
+      client_id: CLIENT_ID
+    };
+    const res = await fetch(BACKEND_URL, {
+      method: 'POST',
+      // text/plain voorkomt preflight, Apps Script parseert alsnog JSON uit body
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+  }
+
+  async function fetchAll() {
+    const url = BACKEND_URL + (BACKEND_URL.indexOf('?') >= 0 ? '&' : '?') +
+                'scan_datum=' + encodeURIComponent(SCAN_DATUM);
+    const res = await fetch(url, { method: 'GET' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+  }
+
+  function renderAggregates(items) {
+    // items: [{ item_id, label, comment, client_id }, ...]
+    // Per (item_id, client_id): alleen laatste record telt (dedup aan serverkant,
+    // maar we doen het voor de zekerheid ook hier).
+    const latestPerPair = new Map();
+    items.forEach(function (it) {
+      const key = it.item_id + '|' + it.client_id;
+      const prev = latestPerPair.get(key);
+      if (!prev || new Date(it.timestamp) > new Date(prev.timestamp)) {
+        latestPerPair.set(key, it);
+      }
+    });
+
+    // Counts per (item_id, label)
+    const counts = {};
+    const comments = {};
+    latestPerPair.forEach(function (it) {
+      if (it.label) {
+        const k = it.item_id + '|' + it.label;
+        counts[k] = (counts[k] || 0) + 1;
+      }
+      if (it.comment && it.comment.trim()) {
+        if (!comments[it.item_id]) comments[it.item_id] = [];
+        comments[it.item_id].push({ label: it.label, comment: it.comment });
+      }
+    });
+
+    document.querySelectorAll('.fb-count').forEach(function (el) {
+      const item = el.getAttribute('data-item');
+      const label = el.getAttribute('data-label');
+      const k = item + '|' + label;
+      el.textContent = counts[k] || 0;
+    });
+
+    document.querySelectorAll('.fb-comments-list').forEach(function (list) {
+      const item = list.getAttribute('data-item');
+      const cs = comments[item] || [];
+      list.innerHTML = cs.map(function (c) {
+        return '<div class="fb-c"><span class="fb-c-label">' +
+               (c.label || '—') + ':</span>' +
+               (c.comment.replace(/</g, '&lt;').replace(/>/g, '&gt;')) +
+               '</div>';
+      }).join('');
+    });
+  }
+
+  async function refresh() {
+    try {
+      const data = await fetchAll();
+      if (data && data.ok) {
+        renderAggregates(data.items || []);
+        setStatus('ok', 'Verbonden · laatste sync ' + new Date().toLocaleTimeString('nl-NL'));
+      } else {
+        setStatus('err', 'Backend gaf fout: ' + ((data || {}).error || 'onbekend'));
+      }
+    } catch (e) {
+      setStatus('err', 'Verbinding mislukt: ' + e.message);
+    }
+  }
+
+  document.querySelectorAll('.fb-btn').forEach(function (btn) {
+    btn.addEventListener('click', async function () {
+      const item = btn.getAttribute('data-item');
+      const label = btn.getAttribute('data-label');
+      const wrap = btn.closest('.fb-buttons');
+      const onderwerp = wrap.getAttribute('data-onderwerp') || '';
+      // toggle: als al geselecteerd, deselect door leeg label te sturen
+      const newLabel = (myChoices[item] === label) ? '' : label;
+      btn.classList.add('updating');
+      try {
+        await submitFeedback(item, onderwerp, newLabel, '');
+        if (newLabel) myChoices[item] = newLabel; else delete myChoices[item];
+        saveMyChoices();
+        applyMyChoices();
+        refresh();
+      } catch (e) {
+        setStatus('err', 'Kon label niet opslaan: ' + e.message);
+      } finally {
+        btn.classList.remove('updating');
+      }
+    });
+  });
+
+  document.querySelectorAll('.fb-comment-save').forEach(function (btn) {
+    btn.addEventListener('click', async function () {
+      const item = btn.getAttribute('data-item');
+      const ta = document.querySelector('.fb-comment[data-item="' + item + '"]');
+      const comment = (ta && ta.value || '').trim();
+      const wrap = btn.closest('.scan-item').querySelector('.fb-buttons');
+      const onderwerp = wrap.getAttribute('data-onderwerp') || '';
+      const label = myChoices[item] || '';
+      const status = document.querySelector('.fb-comment-status[data-item="' + item + '"]');
+      if (!comment) {
+        status.textContent = 'Leeg — niets opgeslagen.';
+        return;
+      }
+      status.textContent = 'Bezig…';
+      try {
+        await submitFeedback(item, onderwerp, label, comment);
+        status.textContent = 'Opgeslagen ✓';
+        ta.value = '';
+        refresh();
+        setTimeout(function () { status.textContent = ''; }, 3000);
+      } catch (e) {
+        status.textContent = 'Fout: ' + e.message;
+      }
+    });
+  });
+
+  applyMyChoices();
+  refresh();
+  setInterval(refresh, POLL_INTERVAL_MS);
+})();
+</script>
+</body>
+</html>
