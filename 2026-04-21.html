@@ -539,15 +539,34 @@
   }
 
   async function fetchAll() {
-    const url = BACKEND_URL + (BACKEND_URL.indexOf('?') >= 0 ? '&' : '?') +
-                'scan_datum=' + encodeURIComponent(SCAN_DATUM);
-    const res = await fetch(url, { method: 'GET' });
+    // Haal alle records op; filter client-side op scan_datum met normalisatie.
+    // Reden: Google Sheets converteert "2026-04-21" bij opslag naar een Date-cel,
+    // en levert die terug als "Tue Apr 21 2026 00:00:00 GMT+0200 ..." — dus de
+    // server-side filter op exacte string-match zou altijd 0 retourneren.
+    const res = await fetch(BACKEND_URL, { method: 'GET' });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     return res.json();
   }
 
+  function normDate(v) {
+    const s = String(v || '').trim();
+    if (!s) return '';
+    // Al YYYY-MM-DD?
+    if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.substring(0, 10);
+    // Anders parse (vangt "Tue Apr 21 2026 00:00:00 GMT+0200 ..." etc)
+    const d = new Date(s);
+    if (isNaN(d.getTime())) return s;
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + day;
+  }
+
   function renderAggregates(items) {
-    // items: [{ item_id, label, comment, client_id }, ...]
+    // items: [{ scan_datum, item_id, label, comment, client_id, timestamp }, ...]
+    // Filter eerst op scan_datum (genormaliseerd) zodat we alleen deze week tellen.
+    items = items.filter(function (it) { return normDate(it.scan_datum) === SCAN_DATUM; });
+
     // Per (item_id, client_id): alleen laatste record telt (dedup aan serverkant,
     // maar we doen het voor de zekerheid ook hier).
     const latestPerPair = new Map();
